@@ -21,4 +21,4 @@ app.use(shopRoutes);
 // 404 Page
 app.use('/',defaultRoute);
 
-app.listen(4000);
+app.listen(3000);
