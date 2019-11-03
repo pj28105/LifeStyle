@@ -1,30 +1,56 @@
 const Product = require('../models/product');
+const User = require('../models/user');
 
 exports.getProducts = (req, res, next) => {
-    res.render('shop/product-list', { prods: Product.fetchAll(), pageTitle: 'Products' });
+    Product.fetchAll().then(products => {
+        res.render('shop/product-list', { prods: products, pageTitle: 'Products' });
+    }).catch(err => console.log(err));
 }
 
 exports.getProduct = (req, res, next) => {
     const productId = req.params.productId;
-    productFound = Product.findById(productId);
-    if (productFound) {
-        res.render('shop/product-detail', { pageTitle: productFound.title, product: productFound });
-    } else {
-        res.redirect('/Page Not Found');
-    }
+    Product.findById(productId).then(product => {
+        res.render('shop/product-detail', { pageTitle: product.title, product: product });
+    }).catch(err => console.log(err));
 }
 
 exports.getIndex = (req, res, next) => {
-    res.render('shop/index', { prods: Product.fetchAll(), pageTitle: 'Shop' });
+    Product.fetchAll().then(products => {
+        res.render('shop/index', { prods: products, pageTitle: 'Shop' });
+    }).catch(err => console.log(err));
 }
 
 exports.getCart = (req, res, next) => {
-    res.render('shop/cart', { pageTitle: 'Cart' });
+    // <<<<<<<<<<<< Dummy User   >>>>>>> Pls remove me
+    req.user.getCart()
+        .then(products => {
+            res.render('shop/cart', { pageTitle: 'Cart', products: products });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/invalid');
+        });
 }
 
-exports.postCart = (req, res, next) => {
-    console.log(req.body.productId);
-    res.render('shop/cart', { pageTitle: 'Cart' });
+exports.postAddItemToCart = (req, res, next) => {
+    const productId = req.params.productId;
+    // <<<<<<<<<<<< Dummy User   >>>>>>> Pls remove me
+    req.user.addToCart(productId).then(() => {
+        res.redirect('/products');
+    }).catch(err => {
+        console.log(err);
+        res.redirect('/invalid');
+    });
+}
+
+exports.postRemoveItemFromCart = (req, res, next) => {
+    const productId = req.params.productId;
+    // <<<<<<<<<<<< Dummy User   >>>>>>> Pls remove me
+    req.user.RemoveCart(productId).then((user) => {
+        res.redirect('/cart');
+    }).catch(err => {
+        console.log(err);
+        res.redirect('/invalid');
+    });
 }
 
 exports.getCheckout = (req, res, next) => {
@@ -32,5 +58,19 @@ exports.getCheckout = (req, res, next) => {
 }
 
 exports.getOrders = (req, res, next) => {
-    res.render('shop/orders', { pageTitle: 'Orders' });
+    req.user.getOrders().then(({placedOrders}) => {
+        res.render('shop/orders', { pageTitle: 'Orders', placedOrders: placedOrders });
+    }).catch(err => {
+        console.log(err);
+        res.redirect('/invalid');
+    });
+}
+
+exports.postAddOrder = (req, res, next) => {
+    req.user.addOrder().then(() => {
+        res.redirect('/orders');
+    }).catch(err => {
+        console.log(err);
+        res.redirect('/invaild');
+    });
 }

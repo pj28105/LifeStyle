@@ -1,39 +1,40 @@
-const product = [];
-id = 0;
+const getDb = require('../utils/database').getDb;
+const mongoDb = require('mongodb');
 
 module.exports = class Product{
-    constructor(title,imageUrl,price,description){
+    constructor(title,imageUrl,price,description,_id){
         this.title = title;
         this.imageUrl = imageUrl;
         this.price = price;
         this.description = description;
-        this.id = id;
-        id++;
+        this._id = _id; // Optional
     }
     save(){
-        product.push(this);
+        // If already present in database
+        const db = getDb(); 
+        if(this._id){  
+            // editing the details of exisiting product
+            return db.collection('products').updateOne({ _id :  new mongoDb.ObjectID(this._id) },{$set : {
+                title : this.title,
+                imageUrl : this.imageUrl,
+                price : this.price,
+                description : this.description
+            }});
+        }
+        // adding product
+        return db.collection('products').insertOne(this);
     }
     static fetchAll(){
-        return product;
+        const db = getDb();
+        return db.collection('products').find().toArray();
     }
     static findById(id){
-        for(let i = 0; i < product.length; i++){
-            if(product[i].id == id){
-                return product[i];
-            }
-        }
-        return null;
+        const db = getDb();
+        // Converting id to Bson
+        return db.collection('products').findOne({ _id : new mongoDb.ObjectID(id) });
     }
-    static editDetails(id,title,imageUrl,price,description){
-        for(let i = 0; i < product.length; i++){
-            if(product[i].id == id){
-                product[i].title = title;
-                product[i].imageUrl = imageUrl;
-                product[i].price = price;
-                product[i].description = description;
-                return true;
-            }
-        }
-        return false;
+    static deleteById(id){
+        const db = getDb();
+        return db.collection('products').deleteOne({_id : new mongoDb.ObjectID(id) });
     }
 }
