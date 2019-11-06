@@ -2,15 +2,13 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 // Custom imports
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const defaultRoute = require('./controllers/error')
-const mongoConnect = require('./utils/database').mongoConnect;
 const User = require('./models/user');
-const getDb = require('./utils/database').getDb;
-const mongoDb = require('mongodb');
 
 app = express();
 
@@ -21,9 +19,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 /******************Dummy User *********************/
 app.use((req, res, next) => {
-    const db = getDb();
-    db.collection('users').findOne({ _id: new mongoDb.ObjectID('5dbcf31ce7111851c0fd5223') }).then(user => {
-        req.user = new User(user.username, user.email, user.phone_num, user.address, user._id, user.cart);
+    User.findById('5dc223ff7968c7281080b3a8').then(user => {
+        req.user = user;
         next();
     }).catch(err => {
         console.log(err);
@@ -36,6 +33,17 @@ app.use(shopRoutes);
 // 404 Page
 app.use('/', defaultRoute);
 
-mongoConnect(() => {
-    app.listen(3000);
-});
+mongoose.connect(
+    'mongodb+srv://pj28105:helloapp@shopping-app-prjeu.mongodb.net/Shop?retryWrites=true&w=majority'
+    ).then(() => {
+        console.log('Database Connected!');
+        // const newUser = User({
+        //     name : 'Piyush Jain',
+        //     email : 'piyushjain964349@gmail.com',
+        //     phone_num : '9643496369',
+        //     address : 'New Delhi',
+        //     cart : { items : [] }
+        // });
+        // newUser.save();
+        app.listen(3000);
+    }).catch(err => console.log(err));
