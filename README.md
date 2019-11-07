@@ -1,2 +1,2 @@
 # Shopping-App
-A simple Shopping-App
+Under Development phase!

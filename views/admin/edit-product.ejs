@@ -25,7 +25,8 @@
                 <label for="description">Description</label>
                 <textarea name="description" id="description" rows="5"><%= product.description %></textarea>
             </div>
-
+            <!-- Csrf Protection -->
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn" type="submit">Update Product</button>
         </form>
         <% } else { %>
@@ -46,7 +47,8 @@
                 <label for="description">Description</label>
                 <textarea name="description" id="description" rows="5"></textarea>
             </div>
-
+            <!-- Csrf Protection -->
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn" type="submit">Add Product</button>
         </form>
         <% } %>

@@ -4,20 +4,31 @@ const getTimeStamp = require('../util/timestamp');
 
 exports.getProducts = (req, res, next) => {
     Product.find().then(products => {
-        res.render('shop/product-list', { prods: products, pageTitle: 'Products' });
+        res.render('shop/product-list', {
+            prods: products,
+            pageTitle: 'Products',
+            isAuthenticated: req.session.isLoggedIn
+        });
     }).catch(err => console.log(err));
 }
 
 exports.getProduct = (req, res, next) => {
     const productId = req.params.productId;
     Product.findById(productId).then(product => {
-        res.render('shop/product-detail', { pageTitle: product.title, product: product });
+        res.render('shop/product-detail', {
+            pageTitle: product.title,
+            product: product,
+            isAuthenticated: req.session.isLoggedIn
+        });
     }).catch(err => console.log(err));
 }
 
 exports.getIndex = (req, res, next) => {
     Product.find().then(products => {
-        res.render('shop/index', { prods: products, pageTitle: 'Shop' });
+        res.render('shop/index', {
+            prods: products, pageTitle: 'Shop',
+            isAuthenticated: req.session.isLoggedIn
+        });
     }).catch(err => console.log(err));
 }
 
@@ -25,7 +36,9 @@ exports.getCart = (req, res, next) => {
     // <<<<<<<<<<<< Dummy User   >>>>>>> Pls remove me
     req.user.cart.populate('items.productId').execPopulate()
         .then(products => {
-            res.render('shop/cart', { pageTitle: 'Cart', products: products.items });
+            res.render('shop/cart', {
+                pageTitle: 'Cart', products: products.items
+            });
         }).catch(err => {
             console.log(err);
             res.redirect('/invalid');
@@ -56,7 +69,10 @@ exports.postRemoveItemFromCart = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
     Order.find({ 'user.userId': req.user._id }).then(orders => {
-        res.render('shop/orders', { pageTitle: 'Orders', orders: orders });
+        res.render('shop/orders', {
+            pageTitle: 'Orders',
+            orders: orders
+        });
     }).catch(err => {
         console.log(err);
         res.redirect('/invalid');
