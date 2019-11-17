@@ -21,15 +21,23 @@
                     <p class="product__description"><%= product.description %></p>
                 </div>
                 <% if(isAuthenticated) { %>
-                    <div class="card__actions">
-                        <%- include('../includes/add-to-cart.ejs', {productId : product._id}) %>
-                    </div>
+                <div class="card__actions">
+                    <%- include('../includes/add-to-cart.ejs', {productId : product._id}) %>
+                </div>
                 <% } %>
             </article>
             <% } %>
         </div>
+        <%- include('../includes/pagination.ejs',{ 
+                currentPage: currentPage,
+                hasNextPage: hasNextPage,
+                hasPreviousPage: hasPreviousPage,
+                nextPage: nextPage,
+                previousPage: previousPage, 
+                lastPage: lastPage
+            }) %>
         <% } else { %>
-        <h1>No Products Found!</h1>
-        <% } %>
+            <h1>No Products Found!</h1>
+            <% } %>
     </main>
     <%- include('../includes/footer.ejs') %>

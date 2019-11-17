@@ -2,14 +2,29 @@ const Product = require('../models/product');
 const Order = require('../models/order');
 const getTimeStamp = require('../util/timestamp');
 
+const ITEMS_PER_PAGE = 3;
+
 exports.getProducts = (req, res, next) => {
-    Product.find().then(products => {
-        res.render('shop/product-list', {
-            prods: products,
-            pageTitle: 'Products',
-            isAuthenticated: req.session.isLoggedIn
-        });
-    }).catch(err => console.log(err));
+    const page = +req.query.page || 1;
+    Product.find()
+        .countDocuments()
+        .then(numProducts => {
+            Product.find().
+                skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE)
+                .then(products => {
+                    res.render('shop/product-list', {
+                        prods: products,
+                        pageTitle: 'Products',
+                        currentPage: page,
+                        hasNextPage: page * ITEMS_PER_PAGE < numProducts,
+                        hasPreviousPage: page > 1,
+                        nextPage: page + 1,
+                        previousPage: page - 1,
+                        lastPage: Math.ceil(numProducts / ITEMS_PER_PAGE)
+                    });
+                });
+        }).catch(err => console.log(err));
 }
 
 exports.getProduct = (req, res, next) => {
@@ -18,18 +33,31 @@ exports.getProduct = (req, res, next) => {
         res.render('shop/product-detail', {
             pageTitle: product.title,
             product: product,
-            isAuthenticated: req.session.isLoggedIn
         });
     }).catch(err => console.log(err));
 }
 
 exports.getIndex = (req, res, next) => {
-    Product.find().then(products => {
-        res.render('shop/index', {
-            prods: products, pageTitle: 'Shop',
-            isAuthenticated: req.session.isLoggedIn
-        });
-    }).catch(err => console.log(err));
+    const page = +req.query.page || 1;
+    Product.find()
+        .countDocuments()
+        .then(numProducts => {
+            Product.find().
+                skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE)
+                .then(products => {
+                    res.render('shop/index', {
+                        prods: products,
+                        pageTitle: 'Shop',
+                        currentPage: page,
+                        hasNextPage: page * ITEMS_PER_PAGE < numProducts,
+                        hasPreviousPage: page > 1,
+                        nextPage: page + 1,
+                        previousPage: page - 1,
+                        lastPage: Math.ceil(numProducts / ITEMS_PER_PAGE)
+                    });
+                });
+        }).catch(err => console.log(err));
 }
 
 exports.getCart = (req, res, next) => {
@@ -37,7 +65,8 @@ exports.getCart = (req, res, next) => {
     req.user.cart.populate('items.productId').execPopulate()
         .then(products => {
             res.render('shop/cart', {
-                pageTitle: 'Cart', products: products.items
+                pageTitle: 'Cart',
+                products: products.items
             });
         }).catch(err => {
             console.log(err);
