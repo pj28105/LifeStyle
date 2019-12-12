@@ -1,2 +1,2 @@
-# Shopping-App
+# LifeStyle
 Under Development phase!
